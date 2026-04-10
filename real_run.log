@@ -1,0 +1,64 @@
+Embedding backend: text-embedding-3-small
+LLM backend: gpt-4o-mini
+
+── Loading & chunking Shopee documents ──
+  shopee_chinh_sach_tra_hang_hoan_tien: 10 chunks
+  shopee_dong_kiem: 10 chunks
+  shopee_huy_don_hoan_voucher: 9 chunks
+  shopee_phuong_thuc_tra_hang: 10 chunks
+  shopee_quy_dinh_chung_tra_hang: 5 chunks
+  shopee_thoi_gian_hoan_tien: 10 chunks
+Total chunks: 54
+
+Embedding & indexing...
+Store size: 54 chunks
+
+── Running 5 benchmark queries ──
+
+────────────────────────────────────────────────────────────
+[Q1] Tôi có bao nhiêu ngày để gửi yêu cầu trả hàng hoàn tiền?
+  Gold: 15 ngày kể từ lúc đơn hàng được cập nhật Giao hàng thành công (thực phẩm tươi sống/đông lạnh: 24 giờ).
+  Top-3 retrieved chunks:
+    1. [return_rules] score=0.6086 | Bạn có thể yêu cầu Trả hàng/Hoàn tiền trong các trường hợp như: Chưa nhận được hàng, Thiếu hàng, Người bán gửi sai hàng,...
+    2. [return_method] score=0.5697 | Hướng dẫn trả hàng sau khi yêu cầu Trả hàng/Hoàn tiền của bạn được chấp nhận bao gồm các hình thức và các bước trả hàng ...
+    3. [return_refund] score=0.5692 | Người Mua có thể yêu cầu trả hàng/hoàn tiền trong vòng 15 ngày kể từ lúc đơn hàng được cập nhật giao hàng thành công, ri...
+  Agent answer: Bạn có 15 ngày để gửi yêu cầu trả hàng/hoàn tiền kể từ lúc đơn hàng được cập nhật giao hàng thành công. Riêng đối với thực phẩm tươi sống và đông lạnh, bạn có 24 giờ.
+
+────────────────────────────────────────────────────────────
+[Q2] Tiền hoàn về ví ShopeePay mất bao lâu?
+  Gold: 24 giờ (với điều kiện Ví ShopeePay vẫn hoạt động bình thường).
+  Top-3 retrieved chunks:
+    1. [voucher_refund] score=0.6529 | Thời gian hoàn Tiền đối với đơn hàng đã được thanh toán sẽ khác nhau tùy theo phương thức thanh toán. Ví dụ, với Thanh t...
+    2. [voucher_refund] score=0.6526 | Ví ShopeePay cũng nhận tiền hoàn trong 24 giờ, nhưng cần đảm bảo ví ở trạng thái bình thường....
+    3. [return_rules] score=0.6450 | Khi yêu cầu Trả hàng/Hoàn tiền, mã giảm giá sẽ được hoàn lại trong vòng 48 giờ kể từ khi yêu cầu được chấp nhận. Shopee ...
+  Agent answer: Tiền hoàn về ví ShopeePay sẽ được gửi trong vòng 24 giờ, nhưng cần đảm bảo ví ở trạng thái bình thường.
+
+────────────────────────────────────────────────────────────
+[Q3] Đồng kiểm là gì và tôi được làm gì khi đồng kiểm?
+  Gold: Kiểm tra ngoại quan và số lượng sản phẩm. Không được mở tem, dùng thử, làm hư hại sản phẩm.
+  Top-3 retrieved chunks:
+    1. [dong_kiem] score=0.5852 | Để đặt đơn hàng được đồng kiểm, người mua cần kiểm tra thông tin 'Được/ Không đồng kiểm' sau khi đơn hàng được bàn giao ...
+    2. [dong_kiem] score=0.5237 | Khi đồng kiểm, người mua chỉ được kiểm tra ngoại quan và số lượng sản phẩm, không được mở tem hoặc sử dụng thử sản phẩm....
+    3. [dong_kiem] score=0.5201 | Người mua không phải trả thêm phụ phí khi thực hiện đồng kiểm hoặc trả hàng sau khi đồng kiểm....
+  Agent answer: Đồng kiểm là quá trình mà người mua kiểm tra ngoại quan và số lượng sản phẩm khi đơn hàng được giao. Khi đồng kiểm, người mua chỉ được phép kiểm tra bề ngoài và số lượng của sản phẩm, không được mở tem hoặc sử dụng thử sản phẩm.
+
+────────────────────────────────────────────────────────────
+[Q4] Nếu trả hàng theo hình thức tự sắp xếp, tôi có được hoàn phí vận chuyển không?
+  Gold: Có. Shopee hoàn trong 3–5 ngày làm việc (tiền mặt cho Shopee Mall, Shopee Xu cho đơn ngoài Mall).
+  Top-3 retrieved chunks:
+    1. [return_method] score=0.7572 | Nếu bạn trả hàng qua hình thức Đơn vị vận chuyển đến lấy hàng hoặc Trả hàng tại bưu cục, bạn sẽ được miễn phí trả hàng....
+    2. [return_method] score=0.7273 | Các hình thức trả hàng bao gồm: Đơn vị vận chuyển đến lấy hàng (miễn phí), Trả hàng tại bưu cục (miễn phí), và Tự sắp xế...
+    3. [refund_timeline] score=0.6753 | Đối với hình thức trả hàng 'Tự sắp xếp', phí trả hàng sẽ được hoàn lại theo Chính sách hỗ trợ phí trả hàng....
+  Agent answer: Có, phí trả hàng sẽ được hoàn lại theo Chính sách hỗ trợ phí trả hàng.
+
+────────────────────────────────────────────────────────────
+[Q5] Mã giảm giá có được hoàn lại khi tôi trả hàng toàn bộ đơn không?
+  Gold: Tùy điều kiện: voucher có thể được/không được hoàn theo quy định Shopee.
+  Top-3 retrieved chunks:
+    1. [dong_kiem] score=0.7433 | Mã giảm giá có thể được hoàn lại hoặc không tùy theo quy định của Shopee khi từ chối nhận hàng hoặc yêu cầu trả hàng/hoà...
+    2. [return_rules] score=0.6478 | Khi yêu cầu Trả hàng/Hoàn tiền, mã giảm giá sẽ được hoàn lại trong vòng 48 giờ kể từ khi yêu cầu được chấp nhận. Shopee ...
+    3. [return_method] score=0.6210 | Chính sách hỗ trợ phí trả hàng quy định rằng phí vận chuyển sẽ được hoàn lại nếu bạn yêu cầu trả hàng cho tất cả sản phẩ...
+  Agent answer: Có, mã giảm giá sẽ được hoàn lại trong vòng 48 giờ kể từ khi yêu cầu trả hàng/hoàn tiền được chấp nhận.
+
+============================================================
+Relevant in top-3: 5 / 5

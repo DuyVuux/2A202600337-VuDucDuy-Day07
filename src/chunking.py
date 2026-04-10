@@ -176,3 +176,34 @@ class ChunkingStrategyComparator:
             "by_sentences": stats(sentence),
             "recursive": stats(recursive),
         }
+
+class AgenticChunker:
+    """
+    Sử dụng LLM để phân tách văn bản bằng mặt ngữ nghĩa thực thụ 
+    """
+    def __init__(self, llm_fn) -> None:
+        self.llm_fn = llm_fn
+
+    def chunk(self, text: str) -> list[str]:
+        prompt = f'''
+        Bên dưới là một văn bản quy định chính sách dài. 
+        Hãy chia nó thành các mẩu thông tin hoàn thiện, sao cho mỗi chunk 
+        có thể độc lập cung cấp thông tin hữu ích trong việc trả lời.
+        Trả về ĐÚNG 1 JSON array of strings: `["chunk 1", "chunk 2"]`.
+
+        Văn bản:
+        {text}
+        '''
+        response_json = self.llm_fn(prompt)
+        import json
+        import re
+        try:
+            match = re.search(r'\[.*\]', response_json, re.DOTALL)
+            if match:
+                chunks = json.loads(match.group(0))
+            else:
+                chunks = json.loads(response_json)
+        except Exception:
+            chunks = text.split("\n\n")
+            
+        return [c for c in chunks if isinstance(c, str) and c.strip()]
