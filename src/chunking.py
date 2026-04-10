@@ -48,8 +48,22 @@ class SentenceChunker:
 
     def chunk(self, text: str) -> list[str]:
         # TODO: split into sentences, group into chunks
-        raise NotImplementedError("Implement SentenceChunker.chunk")
+        sentences = re.split(r'(?<=[.!?])\s+', text.strip())
+        chunks = []
+        current_chunk = []
 
+        for sentence in sentences:
+            current_chunk.append(sentence)
+
+            if len(current_chunk) >= self.max_sentences_per_chunk:
+                chunks.append(" ".join(current_chunk).strip())
+                current_chunk = []
+
+        # phần còn lại
+        if current_chunk:
+            chunks.append(" ".join(current_chunk).strip())
+
+        return chunks
 
 class RecursiveChunker:
     """
@@ -67,11 +81,49 @@ class RecursiveChunker:
 
     def chunk(self, text: str) -> list[str]:
         # TODO: implement recursive splitting strategy
-        raise NotImplementedError("Implement RecursiveChunker.chunk")
+        if not text:
+            return []
+
+        return self._split(text, self.separators)
 
     def _split(self, current_text: str, remaining_separators: list[str]) -> list[str]:
         # TODO: recursive helper used by RecursiveChunker.chunk
-        raise NotImplementedError("Implement RecursiveChunker._split")
+        if len(current_text) <= self.chunk_size:
+            return [current_text.strip()]
+
+        # nếu hết separator → hard split
+        if not remaining_separators:
+            return [
+                current_text[i: i + self.chunk_size]
+                for i in range(0, len(current_text), self.chunk_size)
+            ]
+
+        sep = remaining_separators[0]
+
+        # split theo separator hiện tại
+        if sep:
+            parts = current_text.split(sep)
+        else:
+            # separator cuối: split từng ký tự
+            parts = list(current_text)
+
+        chunks = []
+        buffer = ""
+
+        for part in parts:
+            piece = part if sep == "" else part + sep
+
+            if len(buffer) + len(piece) <= self.chunk_size:
+                buffer += piece
+            else:
+                if buffer:
+                    chunks.extend(self._split(buffer.strip(), remaining_separators[1:]))
+                buffer = piece
+
+        if buffer:
+            chunks.extend(self._split(buffer.strip(), remaining_separators[1:]))
+
+        return chunks
 
 
 def _dot(a: list[float], b: list[float]) -> float:
@@ -87,12 +139,40 @@ def compute_similarity(vec_a: list[float], vec_b: list[float]) -> float:
     Returns 0.0 if either vector has zero magnitude.
     """
     # TODO: implement cosine similarity formula
-    raise NotImplementedError("Implement compute_similarity")
+    dot_product = _dot(vec_a, vec_b)
+
+    norm_a = math.sqrt(_dot(vec_a, vec_a))
+    norm_b = math.sqrt(_dot(vec_b, vec_b))
+
+    if norm_a == 0 or norm_b == 0:
+        return 0.0
+
+    return dot_product / (norm_a * norm_b)
 
 
 class ChunkingStrategyComparator:
-    """Run all built-in chunking strategies and compare their results."""
 
     def compare(self, text: str, chunk_size: int = 200) -> dict:
-        # TODO: call each chunker, compute stats, return comparison dict
-        raise NotImplementedError("Implement ChunkingStrategyComparator.compare")
+        fixed = FixedSizeChunker(chunk_size).chunk(text)
+        sentence = SentenceChunker().chunk(text)
+        recursive = RecursiveChunker(chunk_size=chunk_size).chunk(text)
+
+        def stats(chunks):
+            if not chunks:
+                return {
+                    "count": 0,
+                    "avg_length": 0,
+                    "chunks": []
+                }
+
+            return {
+                "count": len(chunks),
+                "avg_length": sum(len(c) for c in chunks) / len(chunks),
+                "chunks": chunks 
+            }
+
+        return {
+            "fixed_size": stats(fixed),
+            "by_sentences": stats(sentence),
+            "recursive": stats(recursive),
+        }
